@@ -1,35 +1,36 @@
-import Notes from "@/app/note/page";
+
 import { connectDB } from "@/lib/mongodb";
-import note from "@/model/noteModel"
-import { promises } from "dns";
-import { NextResponse,NextRequest } from "next/server";
+import notes from "@/model/noteModel";
+import { NextResponse, NextRequest } from "next/server";
 
+export async function DELETE(
+    req: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    try {
+        await connectDB();
 
-// delete note with id
-export async function DELETE(req:NextRequest,{params}:{params:Promise<{id:string}>}) {
-    try{
-        await connectDB()
-        const {id}=await  params
-        const noteDetails=await note.findById(id)
-        return NextResponse.json(noteDetails,{status:200})
-    }
-    catch(err){
-        console.log(err)
-        return NextResponse.json("Something Went Wrong!!",{status:500})
+        const { id } = await params;
+        const deletedNote = await notes.findByIdAndDelete(id);
+
+        if (!deletedNote) {
+            return NextResponse.json(
+                { message: "Note not found!!" },
+                { status: 404 }
+            );
+        }
+
+        return NextResponse.json(
+            { message: "Note deleted successfully" },
+            { status: 200 }
+        );
+
+    } catch (err) {
+        console.log("DELETE Notes Error:", err);
+
+        return NextResponse.json(
+            { message: "Something went wrong!" },
+            { status: 500 }
+        );
     }
 }
-
-// note details with id
-export async function GET(req:NextRequest,{params}:{params:Promise<{id:string}>}){
-    try{
-        await connectDB()
-        const {id}=await params
-        const noteDetails=await note.findById(id)
-        return NextResponse.json(noteDetails,{status:200})
-    }
-    catch(err){
-        console.log(err)
-        return NextResponse.json("Something Went wrong!",{status:500})
-    }
-}
-
