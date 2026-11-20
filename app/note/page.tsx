@@ -19,28 +19,34 @@ export default function Notes() {
     // Fetch saved notes
     const getNotes = async () => {
         try {
-            const response = await fetch("/api/notes")
+            const userMail = session.data?.user?.email;
+
+            if (!userMail) return;
+
+            const response = await fetch(
+                `/api/notes?userMail=${encodeURIComponent(userMail)}`
+            );
 
             if (response.status === 200) {
-                const result = await response.json()
+                const result = await response.json();
 
-                console.log("Fetched Notes:", result)
+                console.log("Fetched Notes:", result);
 
                 const noteData = Array.isArray(result)
                     ? result
-                    : result.notes || result.data || []
+                    : result.notes || result.data || [];
 
-                setNotes(noteData)
+                setNotes(noteData);
             } else {
-                console.log("Failed to fetch notes")
+                console.log("Failed to fetch notes");
             }
 
         } catch (error) {
-            console.log(error)
+            console.log(error);
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    }
+    };
 
     // Authentication check and fetch notes
     useEffect(() => {

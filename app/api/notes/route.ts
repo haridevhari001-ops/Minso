@@ -43,11 +43,23 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function GET() {
+
+export async function GET(req: NextRequest) {
   try {
     await connectDB();
 
-    const noteList = await notes.find().sort({ createdAt: -1 });
+    const userMail = req.nextUrl.searchParams.get("userMail");
+
+    if (!userMail) {
+      return NextResponse.json(
+        { message: "User email is required" },
+        { status: 400 }
+      );
+    }
+
+    const noteList = await notes
+      .find({ userMail })
+      .sort({ createdAt: -1 });
 
     return NextResponse.json(noteList, { status: 200 });
 
@@ -60,4 +72,5 @@ export async function GET() {
     );
   }
 }
+
 
